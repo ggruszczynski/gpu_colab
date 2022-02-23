@@ -1,0 +1,16 @@
+jupyterlab
+numpy==1.20.0
+sympy
+scipy
+matplotlib
+pandas
+ipympl
+ipywidgets
+numba==0.54.1
+ipynb
+sphinx
+pandas
+jupyter-book
+pyppeteer
+notebook-as-pdf
+pyppeteer-install

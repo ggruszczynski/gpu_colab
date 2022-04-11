@@ -28,11 +28,19 @@ void cpu_sum(int *x, int n)
     printf("CPU Sum is %d \t(there are %d elements in the array)\n",result, n);
 }
 
+//Shared memory is allocated per thread block, so all threads in the block have access to the same shared memory.
+// https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared
+// When declaring a variable in shared memory as an external array such as 
+// extern __shared__ int sdata[];
+// the size of the array is determined at launch time (see Execution Configuration). 
+// All variables declared in this fashion, start at the same address in memory, 
+// so that the layout of the variables in the array must be explicitly managed through offsets.
+
+extern __shared__ int sdata[];
 
 __global__ void shared_mem_sum(int *g_idata, int *g_odata)
 {
-    //Shared memory is allocated per thread block, so all threads in the block have access to the same shared memory.
-    extern __shared__ int sdata[];
+
     unsigned int tid = threadIdx.x;
     unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
     sdata[tid] = g_idata[i];

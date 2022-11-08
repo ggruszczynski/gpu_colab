@@ -38,7 +38,7 @@ void cpu_sum(int *x, int n)
 
 extern __shared__ int sdata[];
 
-__global__ void shared_mem_sum(int *g_idata, int *g_odata)
+__global__ void gpu_shared_mem_sum(int *g_idata, int *g_odata)
 {
 
     unsigned int tid = threadIdx.x;
@@ -91,7 +91,7 @@ __global__ void shared_mem_sum(int *g_idata, int *g_odata)
     if (tid == 0) g_odata[blockIdx.x] = sdata[0];   
 }
 
-__global__ void sum(int *x)
+__global__ void gpu_sum(int *x)
 {   
     int tid = blockIdx.x * blockDim.x + threadIdx.x;  // without shared mem
     int N = gridDim.x * blockDim.x;
@@ -154,7 +154,7 @@ void gpu_global_mem_wrapper(int gridSize, int blockSize, int N)
 	cudaMalloc((void**)&d, d_glob_mem_size);
 	cudaMemcpy(d, h, d_glob_mem_size, cudaMemcpyHostToDevice);
 
-    sum <<<gridSize, blockSize>>>(d);
+    gpu_sum <<<gridSize, blockSize>>>(d);
     
     int result;
 	cudaMemcpy(&result, d, sizeof(int), cudaMemcpyDeviceToHost);
@@ -188,7 +188,7 @@ void gpu_shared_mem_sum_wrapper(int gridSize, int blockSize, int N)
     int* d_subsum;
     cudaMalloc((void**)&d_subsum, d_shared_mem_size);
 
-    shared_mem_sum <<<gridSize, blockSize, d_shared_mem_size >>>(d, d_subsum);  // <<<blocks, threads_per_block, size_t sharedMem (bytes) >>>
+    gpu_shared_mem_sum <<<gridSize, blockSize, d_shared_mem_size >>>(d, d_subsum);  // <<<blocks, threads_per_block, size_t sharedMem (bytes) >>>
     
     int result;
 	cudaMemcpy(&result, d, sizeof(int), cudaMemcpyDeviceToHost);

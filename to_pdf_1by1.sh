@@ -1,4 +1,4 @@
-# #!/bin/bash
+#!/bin/bash
 # set -e
 
 
@@ -9,12 +9,12 @@ OUTPUT_DIR="pdfy"
 #CONVERT_OPTION include ['PDFviaHTML', 'asciidoc', 'custom', 'html', 'latex', 'markdown', 'notebook', 'pdf', 'pdfviahtml', 'python', 'rst', 'script', 'slides', 'webpdf']
 CONVERT_OPTION="PDFviaHTML" # simple pdf is not enough Oo
 
-NOTEBOOK_PATHS=(
-    "10_intro_setup" 
-    "20_vector_add"
-    "30_element_wise_matrix_add"
-    "40_parallel_reduction"
-    "50_thrust")
+
+NOTEBOOK_PATHS=("10_intro_setup" 
+     "20_vector_add"
+     "30_matrix_matrix_multiplication"
+     "40_parallel_reduction"
+     "50_thrust")
 
 rm -rf $OUTPUT_DIR
 mkdir -p $OUTPUT_DIR
@@ -26,3 +26,4 @@ do
     jupyter-nbconvert --to ${CONVERT_OPTION} ${NOTEBOOK}.ipynb 
     mv ${NOTEBOOK}.pdf ${OUTPUT_DIR}/
 done
+

@@ -14,7 +14,10 @@ NOTEBOOK_PATHS=("10_intro_setup"
      "20_vector_add"
      "30_matrix_matrix_multiplication"
      "40_parallel_reduction"
-     "50_thrust")
+     "50_thrust"
+     "60_python_cuda_intro"
+     "70_heat_diffusion2D"
+     )
 
 rm -rf $OUTPUT_DIR
 mkdir -p $OUTPUT_DIR

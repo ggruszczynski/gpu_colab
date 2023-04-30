@@ -4,7 +4,7 @@ This repository contains introductory gpu lecture and cuda code samples.
 
 ## Lectures
 
-<https://raw.githack.com/>
+Hosted with <https://raw.githack.com/>
 
 <!-- Use this URL for development -->
 [Lecture 1](https://raw.githack.com/ggruszczynski/gpu_colab/main/lectures/gpu_lecture1.html)

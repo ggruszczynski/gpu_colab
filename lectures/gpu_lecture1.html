@@ -151,7 +151,7 @@ class: left
 
 
 - Become familiar with NVIDIA GPU architecture
-- Become familiar with NVIDIA GPU application development flow
+- Become familiar with NVIDIA GPU application development 
 - Be able to write and run a simple NVIDIA GPU application in CUDA  (`Compute Unified Device Architecture`). 
 
 
@@ -214,9 +214,18 @@ class: left
 #  The GPU prototype
 <img style="width:80%"  src="./figures/warp_scheduler.png">
 
+---
+name: BranchingOnGPU   
+class: left
+#  Branching on GPU
+<img style="width:80%"  src="./figures/gpu-branching-example.png">
+
 --
 
-No branch prediction --> branch predication
+- all threads execute both conditional branches, so execution cost is the sum of both branches
+
+- no branch prediction --> branch predication
+
 
 ---
 name: ModernGPU   
@@ -224,11 +233,132 @@ class: left
 #  Modern GPU
 <img style="width:100%"  src="./figures/rtx4080.jpg">
 
-Which GPU do I need?
+Which GPU do I need? How do they differ?
 
 * gaming
 * mobile (laptop)
 * server
+
+
+---
+name: GPU_programming_model   
+class: left
+# GPU programming model
+<img style="height:50%; width:50%"  src="./figures/host_and_gpu_programming_model.png">
+
+---
+class: left
+# GPU programming model
+
+.left-column[
+<img style="height:75%; width:75%"  src="./figures/tid.png">
+- A CUDA kernel is executed by an array of threads
+- All threads run the same code (SIMD)
+- Each thread has an ID which is used to compute memory addresses and make control decisions
+]
+
+--
+
+.right-column[
+<img style="height:100%; width:100%"  src="./figures/grid.png">
+- Threads are arranged as a grid of thread blocks.
+- Threads within a block have access to a segment of shared memory.
+]
+
+---
+name: ModernGPU   
+class: left
+#  Thread ID
+<img style="width:100%"  src="./figures/CUDA_Thread_Block_Idx.png">
+
+
+---
+name: Warps   
+class: left
+#  Warps
+
+Within a block of threads, the threads are
+executes in groups of 32 called a warp
+
+- all threads in a warp do the same thing at the same time
+- if the block size is not divisible by 32, some of the
+threads in the last warp don't do anything
+- different warps are executed independently (except for
+explicit synchronisation) by run-time scheduler
+- if the block is 2D or 3D, the threads are ordered by first
+dimension, then second, then third - then split into
+warps of 32
+
+
+---
+name: WarpDivergence1   
+class: left
+#  Warp divergence
+
+**Example 1: PDE application with boundary conditions.**
+
+GPU implementation:
+
+- if boundary conditions are cheap, loop over all nodes
+and branch as needed for boundary conditions
+- if boundary conditions are expensive, first kernel does
+interior points, second kernel does boundary points
+
+
+---
+name: WarpDivergence2
+class: left
+#  Warp divergence
+
+
+**Example 2: Processing a long list of elements.**
+Depending on run-time values a few require expensive processing.
+
+GPU implementation:
+- first process list to build two sub-lists of “simple” and “expensive” elements
+- process two sub-lists separately
+
+
+---
+class: left
+#  Function Type Qualifiers
+
+```
+__global__      // launched by CPU on device (must return void)
+__device__      // called from other GPU functions (never CPU)
+__host__        // launched by CPU on CPU (can be used together with __device__)
+```
+
+<https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#function-declaration-specifiers>
+
+
+---
+class: left
+# Kernel launch
+
+Kernel launches are asynchronous - control returns to the CPU immediately. 
+
+```.c
+f_name<<<dim3 gridDim, dim3 blockDim, 
+        size_t sharedMem, cudaStream_t strId>>>(p1,... pN)
+```
+
+<!-- 
+sharedMem - specifies the number of bytes in shared memory that is dynamically allocated per block for this call in addition to the statically allocated memory.
+strId - specifies the associated stream, is an optional parameter which defaults to 0.
+-->
+
+To block the CPU until all preceding CUDA calls have completed:
+
+```.c
+cudaDeviceSynchronize()
+```
+
+To synchronize threads within a kernel:
+```.c
+__syncthreads()
+```
+<https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-configuration>
 
 
 ---
@@ -363,81 +493,6 @@ A stream in CUDA is a sequence of operations that execute on the device in the o
 While operations within a stream are guaranteed to execute in the prescribed order, 
 operations in different streams can be interleaved and, when possible, they can even run concurrently.
 </p>
-
-
-
----
-name: GPU_programming_model   
-class: left
-# GPU programming model
-<img style="height:50%; width:50%"  src="./figures/host_and_gpu_programming_model.png">
-
----
-class: left
-# GPU programming model
-
-.left-column[
-<img style="height:75%; width:75%"  src="./figures/tid.png">
-- A CUDA kernel is executed by an array of threads
-- All threads run the same code (SIMD)
-- Each thread has an ID which is used to compute memory addresses and make control decisions
-]
-
---
-
-.right-column[
-<img style="height:100%; width:100%"  src="./figures/grid.png">
-- Threads are arranged as a grid of thread blocks.
-- Threads within a block have access to a segment of shared memory.
-]
-
----
-name: ModernGPU   
-class: left
-#  Thread ID
-<img style="width:100%"  src="./figures/CUDA_Thread_Block_Idx.png">
-
-
----
-class: left
-#  Function Type Qualifiers
-
-```
-__global__      // launched by CPU on device (must return void)
-__device__      // called from other GPU functions (never CPU)
-__host__        // launched by CPU on CPU (can be used together with __device__)
-```
-
-<https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#function-declaration-specifiers>
-
-
----
-class: left
-# Kernel launch
-
-Kernel launches are asynchronous - control returns to the CPU immediately. 
-
-```.c
-f_name<<<dim3 gridDim, dim3 blockDim, 
-        size_t sharedMem, cudaStream_t strId>>>(p1,... pN)
-```
-
-<!-- 
-sharedMem - specifies the number of bytes in shared memory that is dynamically allocated per block for this call in addition to the statically allocated memory.
-strId - specifies the associated stream, is an optional parameter which defaults to 0.
--->
-
-To block the CPU until all preceding CUDA calls have completed:
-
-```.c
-cudaDeviceSynchronize()
-```
-
-To synchronize threads within a kernel:
-```.c
-__syncthreads()
-```
-<https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-configuration>
 
 
 ---

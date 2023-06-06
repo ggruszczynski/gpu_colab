@@ -280,6 +280,8 @@ class: left
 Within a block of threads, the threads are
 executes in groups of 32 called a warp
 
+--
+
 - all threads in a warp do the same thing at the same time
 - if the block size is not divisible by 32, some of the
 threads in the last warp don't do anything
@@ -299,6 +301,8 @@ class: left
 
 GPU implementation:
 
+--
+
 - if boundary conditions are cheap, loop over all nodes
 and branch as needed for boundary conditions
 - if boundary conditions are expensive, first kernel does
@@ -315,6 +319,9 @@ class: left
 Depending on run-time values a few require expensive processing.
 
 GPU implementation:
+
+--
+
 - first process list to build two sub-lists of “simple” and “expensive” elements
 - process two sub-lists separately
 
@@ -571,7 +578,6 @@ int  main(int argc, char **argv)
     float *C = (float*)malloc(N * sizeof(float));
 
     float *devPtrA, *devPtrB, *devPtrC;
-
     cudaMalloc((void**)&devPtrA, N * sizeof(float)); // GPU memory allocation
     cudaMalloc((void**)&devPtrB, N * sizeof(float)); 
     cudaMalloc((void**)&devPtrC, N * sizeof(float));
@@ -580,7 +586,8 @@ int  main(int argc, char **argv)
     cudaMemcpy(devPtrA, A, N * sizeof(float),  cudaMemcpyHostToDevice); 
     cudaMemcpy(devPtrB, B, N * sizeof(float),  cudaMemcpyHostToDevice);
 
-    vecAdd<<<N/512, 512>>>(devPtrA, devPtrB, devPtrC); // call compute kernel
+    // call compute kernel <<<blocks, threads_per_block>>>
+    vecAdd<<<N/512, 512>>>(devPtrA, devPtrB, devPtrC); 
     
     // copy results from device memory to the host memory
     cudaMemcpy(C, devPtrC, N * sizeof(float),  cudaMemcpyDeviceToHost); 

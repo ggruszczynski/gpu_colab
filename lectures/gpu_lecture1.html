@@ -713,6 +713,47 @@ a.strides
 
 
 ---
+name: porting_issues
+class: left
+# Memory layout - img processing
+
+The channels (colors in case of a RGB image) can be stored in two ways:
+
+<img style="width:100%"  src="./figures/nchw_vs_nhwc.png">
+
+
+---
+name: porting_issues
+class: left
+# Memory layout - convolutions
+
+<img style="width:100%"  src="./figures/convo-tensor.svg">
+
+<br><br><br>
+[Link.](https://docs.nvidia.com/deeplearning/performance/dl-performance-convolutional/index.html)
+
+
+---
+name: porting_issues
+class: left
+# Memory layout - NCHW vs NHWC
+
+<img style="width:100%"  src="./figures/tc-layout-kernels.svg">
+
+
+```
+"Layout choice has an effect on performance, 
+as convolutions implemented for Tensor Cores require NHWC layout 
+and are fastest when input tensors are laid out in NHWC."
+```
+
+[Source - nvidia.](https://docs.nvidia.com/deeplearning/performance/dl-performance-convolutional/index.html#tensor-layout)
+
+<!-- ---
+NCHW (Batch, Channels, Height, Width) is the default memory layout in PyTorch, 
+while NHWC (Batch, Height, Width, Channels) is the default layout in TensorFlow.  -->
+
+---
 class: left
 #  Command line utilities
         

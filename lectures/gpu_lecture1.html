@@ -121,7 +121,7 @@ class: center, middle
 <!-- .coauthor[Sherlock S. Holmes<sup>1</sup>, John H. Watson<sup>2</sup>]  
 .institution[<sup>1</sup>Baker Street Research, <sup>2</sup>Edinburgh University]       -->
 <br/><br/>
-.date[October, 2023] 
+.date[March, 2024]
 <br/><br/><br/>
 .note[Created with [{Liminal}](https://github.com/jonathanlilly/liminal) using [{Remark.js}](http://remarkjs.com/) + [{Markdown}](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet) +  [{KaTeX}](https://katex.org)]
     
@@ -466,7 +466,35 @@ class: left
     </tbody>
 </table>
 
+---
+name: coalesced_mem_access1
+class: left
+# Coalesced memory access
 
+The GPU has a wide memory bus, and is capable of executing memory accesses in naturally aligned chunks of 32, 64, or 128 bytes.
+Memory accesses to neighboring locations by threads in the same warp can be combined.
+This is called coalesced memory access.
+
+--
+
+- If all 32 threads in a warp access consecutive 4 byte elements (e.g. `float`s), aligned on a 128 byte boundary, only 1 memory transaction is needed to handle the memory access.
+- Conversely, if all threads in a warp access disjoint memory locations, 32 transactions are needed
+- Coalescing memory accesses is crucial for good performance
+- This stands in contrast to CPU performance guidelines, where consecutive elements should be handled by 1 thread (prefetcher)
+- Use `cudaMallocPitch` to allocate 2D structures, so that each row/column is properly aligned
+
+---
+name: coalesced_mem_access2
+class: left
+# Coalesced memory access
+
+Good access pattern (coalesced):
+<img style="width:100%"  src="./figures/mem-coalesc-good.png">
+
+Bad access pattern (strided, unaligned):
+<img style="width:100%"  src="./figures/mem-coalesc-bad.png">
+
+The memory bandwidth penalty in this case is 3x
 
 ---
 name: copying_memory

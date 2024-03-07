@@ -660,6 +660,51 @@ __global__  void vecAdd(float* A, float* B, float* C)
 }
 ```
 
+---
+name: GPU and AI
+class: left
+# Simple Neural Network
+
+<img style="width:100%"  src="./figures/simple_mlp_1.png">
+
+<br><br><br>
+[Img source.](https://www.jeremyjordan.me/intro-to-neural-networks/)
+
+---
+name: GPU and AI
+class: left
+# Simple Neural Network
+
+<img style="width:100%"  src="./figures/simple_mlp_2.png">
+
+<br><br><br>
+[Img source.](https://www.jeremyjordan.me/intro-to-neural-networks/)
+
+
+---
+name: GPU and AI
+class: left
+# MLP - implementation
+
+```.py
+import tensorflow as tf
+
+def multi_layer_perceptron(x, weights, biases):
+    num_layers = len(weights) + 1
+    H = 2.0*(x - min(x))/(max(x) - min(x)) - 1.0
+
+    for l in range(0,num_layers-2):
+        W = weights[l]
+        b = biases[l]
+        H = tf.tanh(tf.add(tf.matmul(H, W), b))
+    W = weights[-1]
+    b = biases[-1]
+    Y = tf.add(tf.matmul(H, W), b)
+    return Y
+
+```
+<br><br><br><br><br><br>
+[Source code.](https://github.com/maziarraissi/PINNs/blob/0542794b0a91b9e8764a38f5fc9cd9647a3929ba/appendix/continuous_time_inference%20%28Burgers%29/Burgers.py#L91)
 
 ---
 name: porting_issues
